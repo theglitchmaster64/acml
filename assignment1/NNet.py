@@ -1,10 +1,24 @@
 import numpy
 import random
+import math
 
 class Node:
 	def __init__(self,weight,bias):
 		self.weight = weight
 		self.bias = bias
+		self.state = False
+		self.output = []
+		self.inputs = []
+
+	def activate(self,input):
+		self.inputs = input
+		for i in input:
+			self.outputs.append(1.0/(1.0+math.exp(-(self.weight*i)+bias)))
+		if self.output + bias > 0:
+			self.state = True
+		else:
+			self.state = False
+		return self.state
 
 	def __repr__(self):
 		return 'wt:{0}\tbias:{1}\n'.format(self.weight,self.bias)
@@ -21,6 +35,10 @@ class Layer:
 			return True
 		else:
 			return False
+
+	#def prop_fw(self,next_layer):
+		#for node in self.nodes:
+
 
 	def __repr__(self):
 		ret_str = self.type + '({} nodes)'.format(len(self.nodes)) + ':\n'

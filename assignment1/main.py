@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 
 import sys
-from NNet import *
-import nnetwork as nn
+import numpy as np
+import random
+from nnetwork import *
 
 if __name__=='__main__':
-	input_layer = nn.Layer(8,8)
-	hidden_layer = nn.Layer(3,8)
-	output_layer = nn.Layer(8,3)
-	print('in',input_layer)
-	hidden_layer.fwd_prop(input_layer.weight)
-	output_layer.fwd_prop(hidden_layer.output)
-	print('out',output_layer)
-	print('\nOUTPUT:\n')
-	print(output_layer.output)
+	_tmp = []
+	dataset = []
+	for i in range(0,8):
+		_tmp.append('0'*abs(8-i)+'1'+'0'*i)
+	for data in _tmp:
+		dataset.append([int(x) for x in data])
+	del _tmp
+	print(dataset)
+
+	n = Network()
+	l1 = Layer(8,1)
+	

@@ -1,17 +1,35 @@
 import numpy as np
-np.random.seed(0)
-
-
-
+import random
+import math
 
 class Layer:
-	def __init__(self,n_nodes,n_in):
-		self.weight = np.random.randn(n_nodes,n_in)
-		self.bias = np.zeros((1,n_nodes))
-		self.output = self.weight.T
+	def __init__(self,nodes,features,weight=None,bias=None):
+		self.activity = 0
+		if weight == None:
+			self.weight = np.random.randn(nodes,features)
+		else:
+			self.weight = weight
+		if bias == None:
+			self.bias = np.random.randn(nodes)
+		else:
+			self.bias = bias
 
-	def fwd_prop(self,input): #for each node in input (input*wt)+bias
-		self.output = np.dot(input,self.weight.T) + self.bias
+	def activate(self,features):
+		res = np.dot(features,self.weight.T) + self.bias
+		self.activity = 1.0/(1.0+np.exp(-res))
+		return self.activity
 
-	def __repr__(self):
-		return 'wt:\n{}\nbias:\n{}'.format(self.weight,self.bias)
+class Network:
+	def __init__(self):
+		self.layers = []
+
+	def add_layer(self,layer):
+		self.layers.append(layer)
+
+	def fwd(self,vals):
+		for l in self.layers:
+			vals = l.activate(vals)
+		return vals
+
+	def eval(self,vals):
+		return self.fwd(vals)
