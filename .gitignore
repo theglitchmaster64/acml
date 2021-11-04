@@ -1,3 +1,7 @@
 /tests
 pyvenv.cfg
+<<<<<<< HEAD
 
+=======
+*.tar.gz
+>>>>>>> 045d71b (reorganized files;added sample data for assignment 2)
