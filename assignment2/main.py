@@ -42,10 +42,10 @@ if __name__=='__main__':
 	print('loading samples...')
 
 	X = LoadSamples(10,8)
-	x_train = X.train['col']
-	x_test = X.test['col']
-	x_train_grey = X.train['grey']
-	x_test_grey = X.test['grey']
+	x_train = [x['col'] for x in X.train]
+	x_test = [x['col'] for x in X.test]
+	x_train_grey = [x['grey'] for x in X.train]
+	x_test_grey = [x['grey'] for x in X.test]
 
 	print('training model...')
 
