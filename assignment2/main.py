@@ -59,4 +59,10 @@ if __name__=='__main__':
 
 	ae.compile(optimizer='adam',loss='mse')
 
-	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=16,batch_size=4)
+	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=32,batch_size=4)
+
+	y = ae.predict(x_test_grey)
+
+	Y = OutputImages(input_images=x_test_grey,output_images=y,name='oktest0')
+
+	Y.write_images()

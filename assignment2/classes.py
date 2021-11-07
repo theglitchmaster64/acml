@@ -21,18 +21,15 @@ class LoadSamples:
 			cv2.imwrite('tmp/{}.jpg'.format(i),self.samples[i]['col'])
 
 class OutputImages:
-	def __init__(self,name=None,elems=None):
-		if elems == None:
-			self.items = []
-		else:
-			self.items = elems
-		if name == None:
-			self.name = ''.join([chr(random.randrange(97,122)) for x in range(8)])
-		else:
-			self.name = name
+	def __init__(self,input_images,output_images,name=''.join([chr(random.randrange(97,122)) for x in range(8)])):
+		self.input_images = []
+		self.output_images = []
+		self.name = name
+		for i in input_images:
+			self.input_images.append(i*255.0)
+		for j in output_images:
+			self.output_images.append(j*255.0)
 
-	def add_image(self,img):
-		self.items.append(img)
 
 	def write_images(self):
 		if os.path.exists(os.path.join(os.getcwd(),self.name)):
@@ -40,3 +37,6 @@ class OutputImages:
 			return None
 		else:
 			os.mkdir(os.path.join(os.getcwd(),self.name))
+		for i in range(len(self.output_images)):
+			cv2.imwrite(os.path.join(os.getcwd(),self.name)+'/out_{}.jpg'.format(i),self.output_images[i])
+			cv2.imwrite(os.path.join(os.getcwd(),self.name)+'/in_{}.jpg'.format(i),self.input_images[i])
