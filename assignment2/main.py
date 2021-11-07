@@ -11,44 +11,52 @@ from matplotlib import pyplot as plt
 if __name__=='__main__':
 
 	print('ok')
-
-	input_shape = (32,32,3)
-	red_dim = 256
-	layer_filters = [64,128,256]
+	print('loading samples...')
+	X = LoadSamples(100,80)
+	x_train = np.array([x['col'] for x in X.train])
+	x_train = x_train.reshape(x_train.shape[0],32,32,3)
+	x_test = np.array([x['col'] for x in X.test])
+	x_test = x_test.reshape(x_test.shape[0],32,32,3)
+	x_train_grey = np.array([x['grey'] for x in X.train])
+	x_train_grey = x_train_grey.reshape(x_train_grey.shape[0],32,32,1)
+	x_test_grey = np.array([x['grey'] for x in X.test])
+	x_test_grey = x_test_grey.reshape(x_test_grey.shape[0],32,32,1)
 
 	#encoder stub
-	print('preparing encoder stub...')
-	input_layer = keras.layers.Input(shape=input_shape)
-	encoder_layer = input_layer
-	for nlayer in layer_filters:
-		encoder_layer = keras.layers.Conv2D(filters = nlayer, kernel_size = 3,strides=1,activation='relu',padding='same')(encoder_layer)
-	shape = keras.backend.int_shape(encoder_layer)
-	encoder_layer = keras.layers.Flatten()(encoder_layer)
-	encoder_output = keras.layers.Dense(red_dim)(encoder_layer)
-	encoder = keras.models.Model(input_layer,encoder_output,name='enc')
+
+	encoder_input = keras.layers.Input(shape=(32,32,1))
+	enc_lyr = encoder_input
+	enc_lyr = keras.layers.Conv2D(filters=64,kernel_size=3,strides=2,activation='relu',padding='same')(enc_lyr)
+	enc_lyr = keras.layers.Conv2D(filters=128,kernel_size=3,strides=2,activation='relu',padding='same')(enc_lyr)
+	encoder_shape = keras.backend.int_shape(enc_lyr)
+	enc_lyr = keras.layers.Flatten()(enc_lyr)
+	encoder_output = keras.layers.Dense(256)(enc_lyr)
+
+	encoder_stub = keras.models.Model(encoder_input,encoder_output,name='mr.enc')
+	print(encoder_stub.summary())
+
 
 	#decoder stub
-	print('preparing decoder stub...')
-	decoder_inputs = keras.layers.Input(shape=red_dim)
-	decoder_layer = keras.layers.Dense(shape[1]*shape[2]*shape[3])(decoder_inputs)
-	decoder_layer = keras.layers.Reshape((shape[1],shape[2],shape[3]))(decoder_layer)
-	for nlayer in layer_filters[::-1]:
-		decoder_layer = keras.layers.Conv2DTranspose(filters=nlayer,kernel_size = 3, strides = 1, activation='relu', padding='same')(decoder_layer)
-	decoder_output = keras.layers.Conv2DTranspose(filters=3,kernel_size = 3, strides = 1, activation='sigmoid', padding='same')(decoder_layer)
-	decoder = keras.models.Model(decoder_inputs,decoder_output,name='dec')
+	decoder_input = keras.layers.Input(shape=256)
+	dec_lyr = keras.layers.Dense(encoder_shape[1]*encoder_shape[2]*encoder_shape[3])(decoder_input)
+	dec_lyr = keras.layers.Reshape((encoder_shape[1],encoder_shape[2],encoder_shape[3]))(dec_lyr)
+	dec_lyr = keras.layers.Conv2DTranspose(filters=128,kernel_size=3,strides=2,activation='relu',padding='same')(dec_lyr)
+	dec_output = keras.layers.Conv2DTranspose(filters=3,kernel_size=3,strides=2,activation='sigmoid',padding='same')(dec_lyr)
+	dec_lyr = keras.layers.Conv2DTranspose(filters=64,kernel_size=3,strides=2,activation='relu',padding='same')(dec_lyr)
+	dec_ouput = keras.layers.Conv2DTranspose(filters=3,kernel_size=3,strides=2,activation='sigmoid',padding='same')(dec_lyr)
 
-	ae = keras.models.Model(input_layer,decoder(encoder(input_layer)),name='autoenc')
+	decoder_stub = keras.models.Model(decoder_input,dec_output,name='mr.dec')
+	print(decoder_stub.summary())
 
-	print('loading samples...')
+	#glue
 
-	X = LoadSamples(10,8)
-	x_train = [x['col'] for x in X.train]
-	x_test = [x['col'] for x in X.test]
-	x_train_grey = [x['grey'] for x in X.train]
-	x_test_grey = [x['grey'] for x in X.test]
+	print('creating model...')
 
-	print('training model...')
+	ae = keras.models.Model(encoder_input,decoder_stub(encoder_stub(encoder_input)),name='mr.AE')
+	print(ae.summary())
 
-	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=10,batch_size=4)
+	print('compiling model...')
 
-	print('alldone!')
+	ae.compile(optimizer='adam',loss='mse')
+
+	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=16,batch_size=4)
