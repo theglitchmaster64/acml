@@ -12,15 +12,18 @@ if __name__=='__main__':
 
 	print('ok')
 	print('loading samples...')
-	X = LoadSamples(100,80)
-	x_train = np.array([x['col'] for x in X.train])
-	x_train = x_train.reshape(x_train.shape[0],32,32,3)
-	x_test = np.array([x['col'] for x in X.test])
-	x_test = x_test.reshape(x_test.shape[0],32,32,3)
-	x_train_grey = np.array([x['grey'] for x in X.train])
-	x_train_grey = x_train_grey.reshape(x_train_grey.shape[0],32,32,1)
-	x_test_grey = np.array([x['grey'] for x in X.test])
-	x_test_grey = x_test_grey.reshape(x_test_grey.shape[0],32,32,1)
+	(x_train, _), (x_test, _) = keras.datasets.cifar100.load_data()
+	x_train_grey = np.zeros((50000,32,32,1))
+	x_test_grey = np.zeros((10000,32,32,1))
+	for i in range(len(x_train_grey)):
+		x_train_grey[i] = np.dot(x_train[i][...,:3],[0.299,0.587,0.144]).reshape((32,32,1))
+	for i in range(len(x_test_grey)):
+		x_test_grey[i] = np.dot(x_test[i][...,:3],[0.299,0.587,0.144]).reshape((32,32,1))
+
+	x_train = x_train / 255.0
+	x_test = x_test / 255.0
+	x_train_grey = x_train_grey / 255.0
+	x_test_grey = x_test_grey / 255.0
 
 	#encoder stub
 
@@ -59,10 +62,12 @@ if __name__=='__main__':
 
 	ae.compile(optimizer='adam',loss='mse')
 
-	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=32,batch_size=4)
+	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=10,batch_size=4)
 
 	y = ae.predict(x_test_grey)
-
-	Y = OutputImages(input_images=x_test_grey,output_images=y)
-
+	Y = OutputImages(input_images=x_test_grey,output_images=y,name='finaltest')
 	Y.write_images()
+
+	#y2 = ae.predict(x_train_grey)
+	#Y2 = OutputImages(input_images=x_train_grey,output_images=y2)
+	#Y2.write_images()
