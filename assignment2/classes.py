@@ -8,10 +8,10 @@ import os
 # m splits the data into train and test, ex - m=8 is a 80-20 split
 # each sample is a dict containing a rgb and greyscale version of the same image
 class LoadSamples:
-	def __init__(self,n,m):
+	def __init__(self,n,m,res=(32,32)):
 		self.samples = []
 		for i in range(1,n+1):
-			self.samples.append({'col':cv2.resize(cv2.imread('samples/{}.jpg'.format(i)),(32,32))/255.0,'grey':cv2.resize(cv2.imread('samples/{}.jpg'.format(i),cv2.IMREAD_GRAYSCALE),(32,32))/255.0})
+			self.samples.append({'col':cv2.resize(cv2.imread('samples/{}.jpg'.format(i)),res)/255.0,'grey':cv2.resize(cv2.imread('samples/{}.jpg'.format(i),cv2.IMREAD_GRAYSCALE),res)/255.0})
 		self.train = self.samples[0:m]
 		self.test = self.samples[m::]
 

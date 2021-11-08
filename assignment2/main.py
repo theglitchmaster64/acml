@@ -63,6 +63,6 @@ if __name__=='__main__':
 
 	y = ae.predict(x_test_grey)
 
-	Y = OutputImages(input_images=x_test_grey,output_images=y,name='oktest0')
+	Y = OutputImages(input_images=x_test_grey,output_images=y)
 
 	Y.write_images()
