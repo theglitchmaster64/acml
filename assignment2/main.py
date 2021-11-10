@@ -62,11 +62,29 @@ if __name__=='__main__':
 
 	ae.compile(optimizer='adam',loss='mse')
 
-	ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=10,batch_size=4)
+	epochs=32
+
+	print('training for epochs:{}'.format(epochs))
+
+	history = ae.fit(x_train_grey,x_train,validation_data=(x_test_grey,x_test),epochs=epochs,batch_size=4)
+	#plt.plot(history.history['loss'])
+	#plt.plot(history.history['val_loss'])
+	#plt.title('model loss')
+	#plt.xlabel('epoch')
+	#plt.ylabel('loss')
+	#plt.legend(['train','test'],loc='upper left')
+
+	print('saving chart to chart_{}.png'.format(epochs))
+	#plt.savefig('chart_{}.png'.format(epochs))
+	print('chart saved to chart_{}.png'.format(epochs))
+
+	print('predicting 10000 colorized images from TEST_GREY')
 
 	y = ae.predict(x_test_grey)
 	Y = OutputImages(input_images=x_test_grey,output_images=y,name='finaltest')
 	Y.write_images()
+
+	print('all done!')
 
 	#y2 = ae.predict(x_train_grey)
 	#Y2 = OutputImages(input_images=x_train_grey,output_images=y2)
